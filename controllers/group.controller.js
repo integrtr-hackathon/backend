@@ -51,10 +51,14 @@ export const getGroups = async (req, res) => {
 export const searchGroups = async (req, res) => {
   try {
     const { q } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
     if (!q) {
       return res.status(400).json({ message: "Search query 'q' is required" });
     }
+
+    const skip = (page - 1) * limit;
 
     const searchRegex = new RegExp(q, "i");
 
@@ -65,9 +69,20 @@ export const searchGroups = async (req, res) => {
       ],
     };
 
-    const groups = await Group.find(query);
+    const [groups, totalResults] = await Promise.all([
+      Group.find(query).skip(skip).limit(limit),
 
-    res.json(groups);
+      Group.countDocuments(query),
+    ]);
+
+    res.json({
+      data: groups,
+      pagination: {
+        totalResults: totalResults,
+        currentPage: page,
+        totalPages: Math.ceil(totalResults / limit),
+      },
+    });
   } catch (error) {
     console.error("Search error:", error);
     res.status(500).json({ message: "Failed to search for groups" });
