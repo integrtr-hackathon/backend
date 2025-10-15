@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors"
 import { connection } from "./database/connection.js";
 import groupRoutes from "./routes/groups.routes.js";
+import roleRoutes from "./routes/roles.routes.js";
 
 dotenv.config();
 const app = express();
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/api/groups", groupRoutes);
+app.use("/api/roles", roleRoutes)
 
 const PORT = process.env.PORT || 5000;
 

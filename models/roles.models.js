@@ -1,48 +1,51 @@
 import mongoose from "mongoose";
 
-const permissionSchema = new mongoose.Schema({
-    userPermissions: mongoose.Schema.Types.Mixed,
-})
-
 const roleSchema = new mongoose.Schema(
   {
+    // The field in the DB is 'role_id', so we match it here.
     role_id: {
       type: Number,
       required: true,
-      unique: true, 
+      unique: true,
       index: true,
     },
-    name: {
+    role_name: {
       type: String,
-      required: true,
-    },
-    userType: {
-      type: String,
-      required: true,
     },
     description: {
       type: String,
-      required: false,
     },
     status: {
       type: String,
-      enum: ["active", "inactive"],
-      default: "active",
     },
-    rbpOnly: {
-      type: Boolean,
-      default: false,
+    last_modified_utc: {
+      type: String, // Storing as String since it's just the date part
     },
-    lastModified: {
-      type: Date,
+    role_type: {
+      type: String,
     },
-    actions: {
-      type: [String],
-      default: [],
+    // These fields can be null, so no `required: true`
+    sub_domain: {
+      type: String,
     },
-    permissions: permissionSchema,
+    user_type: {
+      type: String,
+    },
+    visibility_type: {
+      type: String,
+    }
   },
-  { timestamps: true }
+  {
+    // This tells Mongoose to use your existing 'created' and 'last_modified' fields
+    // instead of creating its own 'createdAt' and 'updatedAt' fields.
+    timestamps: { createdAt: 'created', updatedAt: 'last_modified' },
+    
+    // Allows Mongoose to read documents that have extra fields not defined in this schema
+    strict: false, 
+    
+    // Explicitly tells Mongoose which collection to use
+    collection: 'roles' 
+  }
 );
 
 export const Role = mongoose.model("Role", roleSchema);
